@@ -1409,12 +1409,15 @@ export default function Betkaro() {
       onMarkPaid={id=>setWithdrawals(w=>w.map(x=>x.id===id?{...x,status:"paid"}:x))}
       onQRUpload={async (file) => {
         showToast("⏳ QR upload ho raha hai...");
+        const filePath = `public/payment-qr-${Date.now()}.png`;
         const { data, error } = await supabase.storage
           .from("qr-codes")
-          .upload("public/payment-qr.png", file, { upsert: true, contentType: file.type });
-        if (error) { showToast("❌ Upload failed: " + error.message); return; }
-        const { data: { publicUrl } } = supabase.storage.from("qr-codes").getPublicUrl(data.path);
-        await supabase.from("admin_settings").upsert({ id: 1, qr_url: publicUrl });
+          .upload(filePath, file, { upsert: true, contentType: file.type });
+        if (error) { showToast("❌ Upload failed: " + error.message); console.error("QR Upload error:", error); return; }
+        const { data: urlData } = supabase.storage.from("qr-codes").getPublicUrl(filePath);
+        const publicUrl = urlData.publicUrl;
+        const { error: dbError } = await supabase.from("admin_settings").upsert({ id: 1, qr_url: publicUrl, updated_at: new Date().toISOString() });
+        if (dbError) { showToast("❌ DB save failed: " + dbError.message); console.error("DB error:", dbError); return; }
         setQrImage(publicUrl);
         showToast("✅ QR Code upload ho gaya! Sabhi users ko dikhega.");
       }}
