@@ -978,6 +978,9 @@ function WithdrawModal({ wallet, onClose, onSubmit }) {
 function AdminPanel({ deposits, withdrawals, onApprove, onReject, onMarkPaid, onQRUpload, qrImage, matches, onLogout }) {
   const [tab, setTab] = useState("dashboard");
   const fileRef = useRef();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const tabs=[["dashboard","📊"],["deposits","💰"],["withdrawals","🏦"],["scanner","📷"],["odds","📈"],["users","👥"]];
   return (
     <div style={{minHeight:"100vh",background:"#060606",color:"#fff",fontFamily:"'Segoe UI',sans-serif"}}>
@@ -1071,6 +1074,7 @@ function AdminPanel({ deposits, withdrawals, onApprove, onReject, onMarkPaid, on
           <div>
             <h2 style={{color:"#f0c040"}}>📷 QR Scanner</h2>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+              {/* Current QR */}
               <div style={{background:"rgba(184,134,11,0.06)",border:"2px dashed #b8860b",borderRadius:16,padding:16,textAlign:"center"}}>
                 <h3 style={{color:"#f0c040",marginTop:0}}>Current QR</h3>
                 {qrImage
@@ -1079,13 +1083,44 @@ function AdminPanel({ deposits, withdrawals, onApprove, onReject, onMarkPaid, on
                     <span style={{fontSize:40}}>📷</span>
                     <p style={{color:"#555",fontSize:12,margin:0}}>No QR uploaded</p>
                   </div>}
+                {qrImage&&<p style={{color:"#00cc44",fontSize:12,margin:"8px 0 0",fontWeight:700}}>✅ QR Active!</p>}
               </div>
+              {/* Upload New QR */}
               <div style={{background:"#0d0d0d",border:"1px solid #1a1a1a",borderRadius:16,padding:16}}>
                 <h3 style={{color:"#fff",marginTop:0}}>Upload New QR</h3>
-                <p style={{color:"#888",fontSize:12}}>JPG, PNG supported.</p>
-                <input ref={fileRef} type="file" accept="image/*" onChange={e=>{const f=e.target.files[0];if(f)onQRUpload(f);}} style={{display:"none"}}/>
-                <button onClick={()=>fileRef.current.click()} style={{width:"100%",padding:12,background:"linear-gradient(135deg,#b8860b,#d4a017)",border:"none",borderRadius:10,color:"#fff",fontWeight:800,fontSize:14,cursor:"pointer",marginBottom:10}}>📁 SELECT IMAGE</button>
-                {qrImage&&<p style={{color:"#00cc44",fontSize:12,margin:0,textAlign:"center"}}>✅ QR Active!</p>}
+                <p style={{color:"#888",fontSize:12,marginTop:0}}>JPG, PNG supported.</p>
+                <input ref={fileRef} type="file" accept="image/*" onChange={e=>{
+                  const f=e.target.files[0];
+                  if(f){
+                    setSelectedFile(f);
+                    setPreviewUrl(URL.createObjectURL(f));
+                  }
+                }} style={{display:"none"}}/>
+                {/* Preview */}
+                {previewUrl&&(
+                  <div style={{marginBottom:10,textAlign:"center"}}>
+                    <p style={{color:"#b8860b",fontSize:11,margin:"0 0 6px",fontWeight:700}}>📋 Selected — Preview:</p>
+                    <img src={previewUrl} alt="Preview" style={{width:120,height:120,objectFit:"contain",borderRadius:8,background:"#fff",padding:4,border:"2px solid #b8860b"}}/>
+                  </div>
+                )}
+                <button onClick={()=>{ setPreviewUrl(null); setSelectedFile(null); fileRef.current.click(); }}
+                  style={{width:"100%",padding:10,background:"rgba(184,134,11,0.2)",border:"2px solid #b8860b",borderRadius:10,color:"#f0c040",fontWeight:800,fontSize:13,cursor:"pointer",marginBottom:8}}>
+                  📁 SELECT IMAGE
+                </button>
+                <button
+                  disabled={!selectedFile||uploading}
+                  onClick={async()=>{
+                    if(!selectedFile)return;
+                    setUploading(true);
+                    await onQRUpload(selectedFile);
+                    setUploading(false);
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                  }}
+                  style={{width:"100%",padding:12,background:selectedFile?"linear-gradient(135deg,#00aa33,#007722)":"#1a1a1a",border:"none",borderRadius:10,color:selectedFile?"#fff":"#444",fontWeight:900,fontSize:14,cursor:selectedFile?"pointer":"not-allowed",transition:"all 0.3s"}}>
+                  {uploading?"⏳ Uploading...":selectedFile?"⬆️ UPLOAD QR":"⬆️ UPLOAD QR"}
+                </button>
+                {!selectedFile&&<p style={{color:"#555",fontSize:11,margin:"6px 0 0",textAlign:"center"}}>Pehle image select karo</p>}
               </div>
             </div>
           </div>
