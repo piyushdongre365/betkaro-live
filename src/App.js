@@ -1213,6 +1213,20 @@ export default function Betkaro() {
     });
   }, [userId]);
 
+  // ─── On mount: fix viewport for mobile ───
+  useEffect(() => {
+    let vp = document.querySelector('meta[name="viewport"]');
+    if (!vp) { vp = document.createElement('meta'); vp.name = 'viewport'; document.head.appendChild(vp); }
+    vp.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+    document.body.style.background = '#080808';
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.background = '#080808';
+    document.documentElement.style.height = '100%';
+    document.body.style.height = '100%';
+  }, []);
+
   // ─── On mount: check existing session & load QR ───
   useEffect(() => {
     // Check if user already logged in
@@ -1471,8 +1485,8 @@ export default function Betkaro() {
 
   // ─── MAIN USER SITE ───
   return (
-    <div style={{position:"fixed",inset:0,background:"#080808",display:"flex",justifyContent:"center",overflow:"hidden"}}>
-    <div style={{width:"100%",maxWidth:500,height:"100%",overflowY:"auto",overflowX:"hidden",position:"relative",color:"#fff",fontFamily:"'Segoe UI',sans-serif",paddingBottom:70,WebkitOverflowScrolling:"touch"}}>
+    <div style={{position:"fixed",inset:0,background:"#080808",display:"flex",justifyContent:"center"}}>
+    <div style={{width:"100%",maxWidth:500,height:"100%",display:"flex",flexDirection:"column",overflow:"hidden",color:"#fff",fontFamily:"'Segoe UI',sans-serif",position:"relative"}}>
       <style>{`
         html,body{margin:0;padding:0;background:#080808;height:100%;overflow:hidden;}
         *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;}
@@ -1483,6 +1497,9 @@ export default function Betkaro() {
         @keyframes glow{0%,100%{box-shadow:0 0 10px rgba(184,134,11,0.3)}50%{box-shadow:0 0 25px rgba(184,134,11,0.7)}}
         @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
       `}</style>
+
+      {/* SCROLLABLE CONTENT AREA */}
+      <div style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",position:"relative"}}>
 
       {/* HEADER */}
       <div style={{background:"linear-gradient(90deg,#0a0500,#1a0a00,#0a0500)",padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:100,borderBottom:"1px solid #b8860b",animation:"glow 3s infinite"}}>
@@ -1762,8 +1779,11 @@ export default function Betkaro() {
         </>
       )}
 
-      {/* BOTTOM NAV */}
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:500,background:"#0a0a0a",borderTop:"2px solid rgba(184,134,11,0.5)",display:"flex",justifyContent:"space-around",padding:"8px 0",paddingBottom:"max(10px, env(safe-area-inset-bottom))",zIndex:100}}>
+      </div>
+      {/* END SCROLLABLE CONTENT AREA */}
+
+      {/* BOTTOM NAV — always visible, flex child, never disappears on scroll */}
+      <div style={{flexShrink:0,background:"#0a0a0a",borderTop:"2px solid rgba(184,134,11,0.5)",display:"flex",justifyContent:"space-around",padding:"8px 0",paddingBottom:"max(10px, env(safe-area-inset-bottom))",zIndex:100}}>
         {[["🏠","Home","home"],["💰","Deposit","dep"],["🎰","Casino","casino"],["📋","My Bets","bets"],["👤","Account","acc"]].map(([ic,l,k])=>(
           <button key={k} onClick={()=>{
             setCasinoGame(null);setOpenMatch(null);
