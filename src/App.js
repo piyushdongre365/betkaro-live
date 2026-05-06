@@ -1347,7 +1347,7 @@ export default function Betkaro() {
 
   // ─── LOGIN / SIGNUP PAGE ───
   if(page==="login") return (
-    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#0a0a0a 0%,#1a0800 30%,#0a1a0a 70%,#0a0a0a 100%)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Segoe UI',sans-serif",position:"relative",overflow:"hidden",padding:"0 16px"}}>
+    <div style={{position:"fixed",inset:0,background:"linear-gradient(160deg,#0a0a0a 0%,#1a0800 30%,#0a1a0a 70%,#0a0a0a 100%)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Segoe UI',sans-serif",position:"fixed",overflow:"auto",padding:"20px 16px",WebkitOverflowScrolling:"touch"}}>
       {/* Animated BG dots */}
       {[...Array(12)].map((_,i)=>(
         <div key={i} style={{position:"absolute",width:4,height:4,borderRadius:"50%",background:"rgba(240,192,64,0.3)",top:`${Math.random()*100}%`,left:`${Math.random()*100}%`,animation:`pulse ${1.5+Math.random()}s infinite ${Math.random()}s`}}/>
@@ -1471,8 +1471,12 @@ export default function Betkaro() {
 
   // ─── MAIN USER SITE ───
   return (
-    <div style={{minHeight:"100vh",background:"#080808",color:"#fff",fontFamily:"'Segoe UI',sans-serif",maxWidth:500,margin:"0 auto",position:"relative",paddingBottom:70}}>
+    <div style={{position:"fixed",inset:0,background:"#080808",display:"flex",justifyContent:"center",overflow:"hidden"}}>
+    <div style={{width:"100%",maxWidth:500,height:"100%",overflowY:"auto",overflowX:"hidden",position:"relative",color:"#fff",fontFamily:"'Segoe UI',sans-serif",paddingBottom:70,WebkitOverflowScrolling:"touch"}}>
       <style>{`
+        html,body{margin:0;padding:0;background:#080808;height:100%;overflow:hidden;}
+        *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;}
+        ::-webkit-scrollbar{width:0;background:transparent;}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
         @keyframes marquee{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
         @keyframes slideIn{from{transform:translateY(-100%)}to{transform:translateY(0)}}
@@ -1759,7 +1763,7 @@ export default function Betkaro() {
       )}
 
       {/* BOTTOM NAV */}
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:500,background:"#0a0a0a",borderTop:"2px solid rgba(184,134,11,0.5)",display:"flex",justifyContent:"space-around",padding:"8px 0 10px",zIndex:100}}>
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:500,background:"#0a0a0a",borderTop:"2px solid rgba(184,134,11,0.5)",display:"flex",justifyContent:"space-around",padding:"8px 0",paddingBottom:"max(10px, env(safe-area-inset-bottom))",zIndex:100}}>
         {[["🏠","Home","home"],["💰","Deposit","dep"],["🎰","Casino","casino"],["📋","My Bets","bets"],["👤","Account","acc"]].map(([ic,l,k])=>(
           <button key={k} onClick={()=>{
             setCasinoGame(null);setOpenMatch(null);
@@ -1787,6 +1791,7 @@ export default function Betkaro() {
           {toast}
         </div>
       )}
+    </div>
     </div>
   );
 }
